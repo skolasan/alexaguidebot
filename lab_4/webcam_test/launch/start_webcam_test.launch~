@@ -1,17 +1,9 @@
 <launch>
 
+<launch>
+
   <!-- Launch the driver node for our usb camera. -->
-<node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
-    <param name="video_device" value="/dev/video1" />
-    <param name="image_width" value="640" />
-    <param name="image_height" value="480" />
-    <param name="framerate" value="30" />
-    <param name="pixel_format" value="yyuv" />
-    <param name="autofocus" value="true" />
-    <param name="camera_frame_id" value="usb_cam" />
-    
-</node>
- 
+
   <!-- Launch the image view to display the video. -->
   <node pkg="image_view" type="image_view" name="image_view" output="screen">
     <!-- Set the window name. -->
@@ -20,6 +12,14 @@
     <!-- Remap from default image topic to the topic provided by usb_cam. -->
     <remap from="/image" to="/usb_cam/image_raw"/>
   </node>
-  
+
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video1" />
+    <param name="image_width" value="1920" />
+    <param name="image_height" value="1080" />
+    <param name="pixel_format" value="mjpeg" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap" />
+  </node> 
 </launch>
 

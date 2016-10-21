@@ -1,13 +1,14 @@
 #include "ros/ros.h"
 #include "math_two_nums/MathTwoNums.h"
 #include "std_srvs/Empty.h"
+#include "cmath"
 
 std::string mode = "ADDITION";
 
 bool mathCallback(math_two_nums::MathTwoNums::Request  &req,
                   math_two_nums::MathTwoNums::Response &res)
 {
-	ROS_INFO("mode: %s", mode.c_str());
+	ROS_INFO("mode: %d", req.mode);
 	ROS_INFO("request: x=%f, y=%f", req.a, req.b);
 
 	/*********************************
@@ -15,9 +16,36 @@ bool mathCallback(math_two_nums::MathTwoNums::Request  &req,
 	 * DO THE MATH BASED ON THE MODE
 	 *
 	 *********************************/
-	if (mode == "ADDITION")
+	if (req.mode == req.ADDITION)
 	{
 		res.result = req.a + req.b;
+		res.error="SUCCESS";
+	}
+
+	if (req.mode == req.SUBTRACTION)
+	{
+		res.result = req.a - req.b;
+		res.error="SUCCESS";
+	}
+
+	if (req.mode == req.MULTIPLICATION)
+	{
+		res.result = req.a * req.b;
+		res.error="SUCCESS";
+	}
+
+	if (req.mode == req.DIVISION)
+	{
+		if(req.b != 0)
+		{
+			res.result = req.a / req.b;
+			res.error="SUCCESS";
+		}
+		else
+		{
+			res.result = NAN;
+			res.error="Divide by zero";
+		}
 	}
 
 	ROS_INFO("sending back response: %f", res.result);

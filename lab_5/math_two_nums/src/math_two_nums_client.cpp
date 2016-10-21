@@ -2,14 +2,15 @@
 #include "math_two_nums/MathTwoNums.h"
 #include "std_srvs/Empty.h"
 
+using namespace math_two_nums;
 int main(int argc, char **argv)
 {
-	ros::init(argc, argv, "sum_two_nums_client");
+	ros::init(argc, argv, "math_two_nums_client");
 	ros::NodeHandle node;
 
 	// Setup the client for mathing two numbers.
 	ros::ServiceClient mathClient =
-	  node.serviceClient<math_two_nums::MathTwoNums>("math_two_nums");
+	node.serviceClient<math_two_nums::MathTwoNums>("math_two_nums");
 
 	// Setup client to exit session.
 	ros::ServiceClient exitClient = node.serviceClient<std_srvs::Empty>("exit");
@@ -19,7 +20,7 @@ int main(int argc, char **argv)
 	 * SETUP MODE CLIENT HERE.
 	 *
 	 ***************************/
-
+	math_two_nums::MathTwoNums srv;
 	std::string mode = "ADDITION";
 
 	while(ros::ok())
@@ -101,15 +102,20 @@ int main(int argc, char **argv)
 				continue;
 			}
 
-			// Setup the service request.
-			math_two_nums::MathTwoNums srv;
 			srv.request.a = first;
 			srv.request.b = second;
 
 			// Call the service request.
 			if (mathClient.call(srv))
 			{
-				std::cout << "Result: " << srv.response.result << std::endl;
+				if(srv.response.error.compare("SUCCESS") == 0)
+				{
+					std::cout << "Result: " << srv.response.result << std::endl;
+				}
+				else
+				{
+					std::cout << "Error Rx: "<< srv.response.error << std::endl;
+				}
 			}
 			else
 			{
@@ -151,18 +157,22 @@ int main(int argc, char **argv)
 			if (input == "A" || input == "a")
 			{
 				mode == "ADDITION";
+				srv.request.mode=srv.request.ADDITION;
 			}
 			else if (input == "S" || input == "s")
 			{
 				mode = "SUBTRACTION";
+				srv.request.mode=srv.request.SUBTRACTION;
 			}
 			else if (input == "M" || input == "m")
 			{
-				mode == "MULTIPLICATION";
+				mode = "MULTIPLICATION";
+				srv.request.mode=srv.request.MULTIPLICATION;
 			}
 			else if (input == "D" || input == "d")
 			{
-				mode == "DIVISION";
+				mode = "DIVISION";
+				srv.request.mode=srv.request.DIVISION;
 			}
 			else if (input == "E" || input == "e")
 			{

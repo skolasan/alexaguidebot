@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "math_two_nums/MathTwoNums.h"
+#include "math_two_nums/Mode.h"
 #include "std_srvs/Empty.h"
 
 using namespace math_two_nums;
@@ -12,6 +13,9 @@ int main(int argc, char **argv)
 	ros::ServiceClient mathClient =
 	node.serviceClient<math_two_nums::MathTwoNums>("math_two_nums");
 
+	ros::ServiceClient modeClient =
+	node.serviceClient<math_two_nums::Mode>("set_math_mode");
+
 	// Setup client to exit session.
 	ros::ServiceClient exitClient = node.serviceClient<std_srvs::Empty>("exit");
 
@@ -21,6 +25,8 @@ int main(int argc, char **argv)
 	 *
 	 ***************************/
 	math_two_nums::MathTwoNums srv;
+	math_two_nums::Mode mode_srv;
+
 	std::string mode = "ADDITION";
 
 	while(ros::ok())
@@ -157,22 +163,22 @@ int main(int argc, char **argv)
 			if (input == "A" || input == "a")
 			{
 				mode == "ADDITION";
-				srv.request.mode=srv.request.ADDITION;
+				mode_srv.request.mode=mode_srv.request.ADDITION;
 			}
 			else if (input == "S" || input == "s")
 			{
 				mode = "SUBTRACTION";
-				srv.request.mode=srv.request.SUBTRACTION;
+				mode_srv.request.mode=mode_srv.request.SUBTRACTION;
 			}
 			else if (input == "M" || input == "m")
 			{
 				mode = "MULTIPLICATION";
-				srv.request.mode=srv.request.MULTIPLICATION;
+				mode_srv.request.mode=mode_srv.request.MULTIPLICATION;
 			}
 			else if (input == "D" || input == "d")
 			{
 				mode = "DIVISION";
-				srv.request.mode=srv.request.DIVISION;
+				mode_srv.request.mode=mode_srv.request.DIVISION;
 			}
 			else if (input == "E" || input == "e")
 			{
@@ -188,7 +194,6 @@ int main(int argc, char **argv)
 			{
 				std::cout << "'" << input << "' is not a valid mode." << std:: endl;
 				std::cout << "---------------------------------" << std::endl;
-
 				// Continue message.
 				std::cout << "Press any key to continue.";
 				getchar();
@@ -201,10 +206,40 @@ int main(int argc, char **argv)
 			 * HANDLE SETTING THE MODE HERE.
 			 *
 			 ********************************/
-
-			std::cout << "Mode set to " << mode << std::endl;
-			std::cout << "---------------------------------" << std::endl;
-
+			if(mode.compare("ADDITION") == 0)
+			{
+				mode_srv.request.mode = mode_srv.request.ADDITION;
+			}
+			if(mode.compare("SUBTRACTION") == 0)
+			{
+				mode_srv.request.mode = mode_srv.request.SUBTRACTION;
+			}
+			if(mode.compare("MULTIPLICATION") == 0)
+			{
+				mode_srv.request.mode = mode_srv.request.MULTIPLICATION;
+			}
+			if(mode.compare("DIVISION") == 0)
+			{
+				mode_srv.request.mode = mode_srv.request.DIVISION;
+			}
+			if(modeClient.call(mode_srv) == true)
+			{
+				if(mode_srv.response.result)
+				{
+					std::cout << "Mode set to " << mode << std::endl;
+					std::cout << "---------------------------------" << std::endl;
+				}
+				else
+				{
+					std::cout << "Mode Change Failed" << std::endl;
+					return 1;
+				}
+			}
+			else
+			{
+				std::cout << "Failed to call mode service " << std::endl;
+				return 1;
+			}
 			// Continue message.
 			std::cout << "Press any key to continue.";
 			getchar();

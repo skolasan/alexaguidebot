@@ -1,14 +1,15 @@
 #include "ros/ros.h"
 #include "math_two_nums/MathTwoNums.h"
+#include "math_two_nums/Mode.h"
 #include "std_srvs/Empty.h"
 #include "cmath"
 
-std::string mode = "ADDITION";
+int mode;
+math_two_nums::Mode::Request mode_req;
 
 bool mathCallback(math_two_nums::MathTwoNums::Request  &req,
                   math_two_nums::MathTwoNums::Response &res)
 {
-	ROS_INFO("mode: %d", req.mode);
 	ROS_INFO("request: x=%f, y=%f", req.a, req.b);
 
 	/*********************************
@@ -16,25 +17,25 @@ bool mathCallback(math_two_nums::MathTwoNums::Request  &req,
 	 * DO THE MATH BASED ON THE MODE
 	 *
 	 *********************************/
-	if (req.mode == req.ADDITION)
+	if (mode == mode_req.ADDITION)
 	{
 		res.result = req.a + req.b;
 		res.error="SUCCESS";
 	}
 
-	if (req.mode == req.SUBTRACTION)
+	if (mode == mode_req.SUBTRACTION)
 	{
 		res.result = req.a - req.b;
 		res.error="SUCCESS";
 	}
 
-	if (req.mode == req.MULTIPLICATION)
+	if (mode == mode_req.MULTIPLICATION)
 	{
 		res.result = req.a * req.b;
 		res.error="SUCCESS";
 	}
 
-	if (req.mode == req.DIVISION)
+	if (mode == mode_req.DIVISION)
 	{
 		if(req.b != 0)
 		{
@@ -49,6 +50,15 @@ bool mathCallback(math_two_nums::MathTwoNums::Request  &req,
 	}
 
 	ROS_INFO("sending back response: %f", res.result);
+	return true;
+}
+
+bool modeCallback(math_two_nums::Mode::Request  &req,
+					math_two_nums::Mode::Response &res)
+{
+	ROS_INFO("mode: %d", req.mode);
+	mode = req.mode;
+	res.result=true;
 	return true;
 }
 
@@ -72,6 +82,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle node;
 
 	ros::ServiceServer mathServer = node.advertiseService("math_two_nums", mathCallback);
+	ros::ServiceServer modeServer = node.advertiseService("set_math_mode", modeCallback);
 
 	ros::ServiceServer exitServer = node.advertiseService("exit", exitCallback);
 

@@ -1,0 +1,11 @@
+<launch>
+
+  <!-- Launch the server. -->
+  <node pkg="math_two_nums" type="math_two_nums_server" name="math_two_nums_server" />
+  
+ 
+  <!-- Launch the client. -->
+  <node pkg="math_two_nums" type="math_two_nums_client" name="math_two_nums_client" output="screen" />
+  
+</launch>
+

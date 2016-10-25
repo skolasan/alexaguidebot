@@ -23,7 +23,6 @@ class ImageConverter:
       self.bg_img_captured=False
 
    def FarnebackAlgorithm(self,grayscale_prev_img,grayscale_next_img,orig_next_img):
-      print('entered Farneback')
       flow_map = cv2.calcOpticalFlowFarneback(grayscale_prev_img, \
                      grayscale_next_img, 0.5, 3, 15, 3, 5, 1.2, 0)
       h, w = flow_map.shape[:2]
@@ -52,40 +51,20 @@ class ImageConverter:
       return ModeResponse(True)
 
    def MOG2(self,cv_image):
-      #global frame
       global count
       global bgs_mog
       count=count+1
       print(count)
       frame=cv_image
-      
-      #bgs_mog = cv2.BackgroundSubtractorMOG2(50,20,True);
       fgmask = bgs_mog.apply(frame)
       kernel = np.ones((10,10), np.uint8)
-     # fgmask = cv2.dilate(fgmask, kernel, iterations=1)
-     # mask_rbg = cv2.cvtColor(fgmask,cv2.COLOR_GRAY2BGR)
       draw = fgmask
-     # ret,thresh = cv2.threshold(fgmask,127,255,0)
       contours,hierarchy = cv2.findContours(fgmask, cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
- 
       for cnt in contours:
          print(cv2.contourArea(cnt))
          if(1500< cv2.contourArea(cnt) < 30000 ):
             x,y,w,h = cv2.boundingRect(cnt)
             frame=cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
-            print('found countours2')
-         #else:
-            #frame=cv_image
-
-      #cv2.imshow("winname2", frame)
-      #c = cv2.waitKey(1)
-      # cnt = contours[0]
-        #    x,y,w,h = cv2.boundingRect(cnt)
-        # cv2.rectangle(frame,(x,y),(x+w,y+h),(0,0,255),5)
-         #cv2.imshow(winname, draw)
-         #cv2.imshow(winname2, frame)
-        #c = cv2.waitKey(1)
-        #count=count+1
       if not(count % 4):
          bgs_mog = cv2.BackgroundSubtractorMOG2(50,20,True)
       return frame

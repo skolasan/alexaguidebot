@@ -23,8 +23,10 @@ class ImageConverter:
       self.bg_img_captured=False
 
    def FarnebackAlgorithm(self,grayscale_prev_img,grayscale_next_img,orig_next_img):
+      #flow_map = cv2.calcOpticalFlowFarneback(grayscale_prev_img, \
+       #              grayscale_next_img, 0.5, 3, 15, 3, 5, 1.2, 0)
       flow_map = cv2.calcOpticalFlowFarneback(grayscale_prev_img, \
-                     grayscale_next_img, 0.5, 3, 15, 3, 5, 1.2, 0)
+                     grayscale_next_img, 0.5, 3, 15, 1, 5, 1.2, 0)
       h, w = flow_map.shape[:2]
       fx, fy = flow_map[:,:,0], flow_map[:,:,1]
       magnitude_vector = fx*fx+fy*fy
@@ -39,7 +41,7 @@ class ImageConverter:
       #Find contours and discard contours with small areas
       contours,hierarchy = cv2.findContours(np.uint8(flow_mask),cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
       for cnt in contours:
-        if(cv2.contourArea(cnt)>1000):
+        if(1500< cv2.contourArea(cnt) < 30000):
             x,y,w,h = cv2.boundingRect(cnt)
             cv2.rectangle(orig_next_img,(x,y),(x+w,y+h),(0,255,0),2)
       return orig_next_img

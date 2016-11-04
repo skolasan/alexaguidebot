@@ -65,6 +65,7 @@ text = "Odroid Controller\n \
     DOWN-Move Backward\n \
     LEFT-Turn Left\n \
     RIGHT-Turn Right\n \
+    P-Play Song\n \
     ESC-Exit\n"
 
 y0, dy = 50, 20

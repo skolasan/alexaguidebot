@@ -44,20 +44,23 @@ def sendCommandRaw(command,error):
 def handle_rc_command(req):
     error=""
     if req.command == req.MOVE_FORWARD:
-        sendCommandASCII("137 127 255 0 0",error)
+        sendCommandASCII("145 0 100 0 100",error)
         print "Move forward called"
     elif req.command == req.MOVE_BACKWARD:
-        sendCommandASCII("137 128 0 0 0",error)
+        sendCommandASCII("145 255 156 255 156",error)
     elif req.command == req.MOVE_LEFT:
-        sendCommandASCII("137 0 0 255 255",error)
+        print "Move left"
+        sendCommandASCII("145 0 70 0 0",error)
     elif req.command == req.MOVE_RIGHT:
-        sendCommandASCII("137 0 0 0 1",error)
+        sendCommandASCII("145 0 0 0 70",error)
     elif req.command == req.STOP:
-        sendCommandASCII("137 0 0 0 0",error)
+        sendCommandASCII("145 0 0 0 0",error)
+    elif req.command == req.PLAY_SONG:
+        print "song"
+        sendCommandASCII("141 0",error)
     else:
         print "Others called: "+str(req.command)
     return ControlResponse(True,"Success")
-
 
 current_command=-1
 connection=None
@@ -75,6 +78,7 @@ def main(args):
             raise Exception("Unable to send the OI start command-->Check connection")
         if sendCommandASCII("132",error1) == False:
             raise Exception("Unable to put the Roomba to Full mode -- > Check connection")
+        sendCommandASCII("140 0 24 48 20 48 20 50 20 48 20 53 20 52 20 48 20 48 20 50 20 48 20 55 20 53 20 48 20 48 20 50 20 48 20 53 20 52 20 48 20 48 20 50 20 48 20 55 20 53 20",error1)
     except Exception as e:
         print("Couldn't connect to "+port+" check if it exists error : "+str(e))
 

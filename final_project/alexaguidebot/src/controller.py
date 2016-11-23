@@ -13,6 +13,7 @@ from alexaguidebot.srv import Command
 from alexaguidebot.srv import CommandRequest
 from alexaguidebot.srv import CommandResponse
 
+#Add Map points
 zone1x=1.9478963962
 zone1y=7.05327463996
 

@@ -67,9 +67,13 @@ client.on_message = on_message
 
 
 client.connect(MQTT_BROKER_URL, MQTT_BROKER_PORT, 60)
-# Blocking call that processes network traffic, dispatches callbacks and
-# handles reconnecting.
-# Other loop*() functions are available that give a threaded interface and a
-# manual interface.
-client.loop_forever()
 
+try:
+    # Blocking call that processes network traffic, dispatches callbacks and
+    # handles reconnecting.
+    # Other loop*() functions are available that give a threaded interface and a
+    # manual interface.
+    client.loop_forever()
+except KeyboardInterrupt:
+    # Be a good citizen
+    client.disconnect()

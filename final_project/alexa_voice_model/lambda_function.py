@@ -13,6 +13,8 @@ import time
 import random
 import json as json
 
+locations=["zone 1","zone 2","zone 3","elevator","restroom","home","water fountain"]
+
 COMMANDS_TOPIC="irobotucsd/commands/"
 RESPONSE_TOPIC_BASE="irobotucsd/responses/"
 
@@ -47,8 +49,15 @@ def publish_mqtt_message(topic,message):
     client.loop_stop();
     client.disconnect();
 
+def publish_nav_command(target):
+    data={}
+    data["command"] = "navigation"
+    data["location"] = target
+    data_json = json.JSONEncoder().encode(data)
+    publish_mqtt_message(COMMANDS_TOPIC,data_json);
+
+
 def on_message(client,userdata,msg):
-    print("called")
     global callbackRx
     global outputRx
     callbackRx=True
@@ -96,81 +105,26 @@ def get_welcome_response():
     """
 
     session_attributes = {}
-    card_title = "Welcome"
-    speech_output = "Welcome to the Alexa Skills Kit sample. " \
-                    "Please tell me your favorite color by saying, " \
-                    "my favorite color is red"
+    speech_output = "Welcome to the Alexa Guide bot. " \
+                    "I can command the Guide bot for you, " \
+                    "Try Saying, Where is the bot? or " \
+                    "Ask bot to come to the elevator"
+
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
-    reprompt_text = "Please tell me your favorite color by saying, " \
-                    "my favorite color is red."
+    reprompt_text = "Please tell me what would you like to do,"
+
     should_end_session = False
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
+    return build_response(session_attributes, build_speechlet_response(speech_output, should_end_session))
 
 
 def handle_session_end_request():
-    card_title = "Session Ended"
-    speech_output = "Thank you for trying the Alexa Skills Kit sample. " \
+    speech_output = "Thank you for trying the Alexa Guide Bot. " \
                     "Have a nice day! "
     # Setting this to true ends the session and exits the skill.
     should_end_session = True
     return build_response({}, build_speechlet_response(
-        card_title, speech_output, None, should_end_session))
-
-
-def create_favorite_color_attributes(favorite_color):
-    return {"favoriteColor": favorite_color}
-
-
-def set_color_in_session(intent, session):
-    """ Sets the color in the session and prepares the speech to reply to the
-    user.
-    """
-
-    card_title = intent['name']
-    session_attributes = {}
-    should_end_session = False
-
-    if 'Color' in intent['slots']:
-        favorite_color = intent['slots']['Color']['value']
-        session_attributes = create_favorite_color_attributes(favorite_color)
-        speech_output = "I now know your favorite color is " + \
-                        favorite_color + \
-                        ". You can ask me your favorite color by saying, " \
-                        "what's my favorite color?"
-        reprompt_text = "You can ask me your favorite color by saying, " \
-                        "what's my favorite color?"
-    else:
-        speech_output = "I'm not sure what your favorite color is. " \
-                        "Please try again."
-        reprompt_text = "I'm not sure what your favorite color is. " \
-                        "You can tell me your favorite color by saying, " \
-                        "my favorite color is red."
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
-
-
-def get_color_from_session(intent, session):
-    session_attributes = {}
-    reprompt_text = None
-
-    if session.get('attributes', {}) and "favoriteColor" in session.get('attributes', {}):
-        favorite_color = session['attributes']['favoriteColor']
-        speech_output = "Your favorite color is " + favorite_color + \
-                        ". Goodbye."
-        should_end_session = True
-    else:
-        speech_output = "I'm not sure what your favorite color is. " \
-                        "You can say, my favorite color is red."
-        should_end_session = False
-
-    # Setting reprompt_text to None signifies that we do not want to reprompt
-    # the user. If the user does not respond or says something that is not
-    # understood, the session will end.
-    return build_response(session_attributes, build_speechlet_response(
-        intent['name'], speech_output, reprompt_text, should_end_session))
-
+            speech_output,should_end_session))
 
 # --------------- Events ------------------
 
@@ -191,15 +145,6 @@ def on_launch(launch_request, session):
     # Dispatch to your skill's launch
     return get_welcome_response()
 
-# The callback for when the client receives a CONNACK response from the server.
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-    client.subscribe("chaitanya/topic1/#")
-    client.publish("chaitanya/topic2/","move:right")
-
 def on_intent(intent_request, session):
     """ Called when the user specifies an intent for this skill """
 
@@ -209,36 +154,42 @@ def on_intent(intent_request, session):
     intent = intent_request['intent']
     intent_name = intent_request['intent']['name']
 
-    # Dispatch to your skill's intent handlers
-    if intent_name == "MyColorIsIntent":
-        return set_color_in_session(intent, session)
-    elif intent_name == "WhatsMyColorIntent":
-        return get_color_from_session(intent, session)
-    elif intent_name == "AMAZON.HelpIntent":
-        return get_welcome_response()
-    elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
-        return handle_session_end_request()
-    elif intent_name=="SummonIntent":
+    if intent_name == "SummonIntent":
         if 'MapPoint' in intent['slots']:
-            data="{\"command\": \"navigation\", \"location\":"+ "\"" + intent['slots']['MapPoint']['value']+"\"" + "}"
-            publish_mqtt_message(COMMANDS_TOPIC,data);
-        session_attributes = {}
-        speech_output = "I summoned the irobot to " + \
-                    intent['slots']['MapPoint']['value'] +\
-                    " ,It should be here any minute. Watch Out!"
+            if intent['slots']['MapPoint']['value'] in locations:
+                publish_nav_command(intent['slots']['MapPoint']['value'])
+                session_attributes = {}
+                speech_output = "I summoned the bot to " + \
+                        intent['slots']['MapPoint']['value'] +\
+                        " ,It should be here any minute. Watch Out!"
+            else:
+                speech_output = "The bot don't know how to get to "+ \
+                        intent['slots']['MapPoint']['value'] + \
+                        ",Please Try again with a familiar place. for example, elevator. or waterfountain."
+        else:
+            speech_output = "You asked me to summon the robot but I don't know your location!" + \
+            ", Try saying call the bot to the elevator"
 
         should_end_session = True
         return build_response(session_attributes, build_speechlet_response(
-                                speech_output,should_end_session))
+                                    speech_output,should_end_session))
 
     elif intent_name=="NavigateIntent":
         if 'MapPoint' in intent['slots']:
-            data="{\"command\": \"navigation\", \"location\":"+ "\"" + intent['slots']['MapPoint']['value']+"\"" + "}"
-            publish_mqtt_message(COMMANDS_TOPIC,data);
-        session_attributes = {}
-        speech_output = "I asked the irobot to navigate to" + \
-                    intent['slots']['MapPoint']['value'] +\
-                    " ,Please follow the robot!"
+            if intent['slots']['MapPoint']['value'] in locations:
+                publish_nav_command(intent['slots']['MapPoint']['value'])
+                session_attributes = {}
+                speech_output = "I asked the bot to navigate to " + \
+                        intent['slots']['MapPoint']['value'] +\
+                        " , Please follow the robot!"
+            else:
+                speech_output = "The bot don't know how to get to "+ \
+                        intent['slots']['MapPoint']['value'] + \
+                        ", Please Try again with a familiar place. for example, elevator. or waterfountain."
+        else:
+            speech_output = "You asked me to send a navigation command but I don't know your destination!" + \
+            ", Try saying, take me to the elevator"
+        session_attributes = {}                
         should_end_session = True
         return build_response(session_attributes, build_speechlet_response(
                                 speech_output,should_end_session))
@@ -249,15 +200,38 @@ def on_intent(intent_request, session):
         should_end_session = True
 
         if result == True:
-            speech_output = "The bot is currently in "+output
+            speech_output = "The bot is currently closest to "+output
         else:
             speech_output = "There is a problem contacting the bot, Try again" \
                                 " after sometime"
 
         return build_response(session_attributes, build_speechlet_response(
                                 speech_output,should_end_session))
+
+    elif intent_name=="QueryIntent":
+        if 'MapPoint' in intent['slots']:
+            if intent['slots']['MapPoint']['value'] in locations:
+                speech_output="Yes, the bot can happily got to "+intent['slots']['MapPoint']['value']
+            else:
+                speech_output="Sorry, the bot don't know how to reach "+intent['slots']['MapPoint']['value']+ \
+                                ", If you think its important, contact Team Centurions"
+        else:
+            speech_output="No, Offcourse I can't go to undefined places"
+        session_attributes = {}
+        should_end_session = True
+        return build_response(session_attributes, build_speechlet_response(
+                                speech_output,should_end_session))
+
+
+    elif intent_name == "AMAZON.HelpIntent":
+        return get_welcome_response()
+
+    elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
+        return handle_session_end_request()
+
     else:
         raise ValueError("Invalid intent")
+
 
 
 def on_session_ended(session_ended_request, session):
@@ -287,7 +261,7 @@ def lambda_handler(event, context):
     # if (event['session']['application']['applicationId'] !=
     #         "amzn1.echo-sdk-ams.app.[unique-value-here]"):
     #     raise ValueError("Invalid Application ID")
-	
+
     if event['session']['new']:
         on_session_started({'requestId': event['request']['requestId']},
                            event['session'])

@@ -36,7 +36,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/home/kolassc/Desktop/ucsd_course_materials/CSE291/alexa_poc"
+set -gx VIRTUAL_ENV "/home/kolassc/catkin_ws/src/centurions/final_project/alexa_voice_model"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

@@ -10,8 +10,14 @@ http://amzn.to/1LGWsLG
 from __future__ import print_function
 import paho.mqtt.client as mqtt
 import time
+import random
+import json as json
 
 COMMANDS_TOPIC="irobotucsd/commands/"
+RESPONSE_TOPIC_BASE="irobotucsd/responses/"
+
+MQTT_BROKER_URL="broker.hivemq.com"
+MQTT_BROKER_PORT=1883
 
 # --------------- Helpers that build all of the responses ----------------------
 
@@ -40,6 +46,47 @@ def publish_mqtt_message(topic,message):
     time.sleep(1)
     client.loop_stop();
     client.disconnect();
+
+def on_message(client,userdata,msg):
+    print("called")
+    global callbackRx
+    global outputRx
+    callbackRx=True
+    outputRx = msg.payload
+    print("Locate response received: "+outputRx)
+
+def call_mqtt_service(command):
+    #construct the command json
+    command_json={}
+    global callbackRx
+    global outputRx
+    callbackRx=False
+    outputRx=""
+    #reqid=random.randint(1, 100)
+    reqid=57
+    command_json['command']=command
+    command_json['reqid']=reqid
+    command_json=json.JSONEncoder().encode(command_json);
+    client = mqtt.Client()
+    client.on_message = on_message
+    client.connect(MQTT_BROKER_URL,MQTT_BROKER_PORT,60)
+    time.sleep(1)
+    client.subscribe(RESPONSE_TOPIC_BASE+str(reqid))
+    (result,mid)=client.publish(COMMANDS_TOPIC,command_json)
+    
+    loopcount=0
+    while callbackRx==False and loopcount < 6:
+        client.loop(1)
+        loopcount=loopcount+1
+    if(callbackRx):
+        print("wohoo!")
+        callbackRx=False
+        client.disconnect()
+        return (True,outputRx)
+    else:
+        client.disconnect()
+        print("Timeout")
+        return (False,outputRx)
 
 # --------------- Functions that control the skill's behavior ------------------
 
@@ -153,10 +200,6 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("chaitanya/topic1/#")
     client.publish("chaitanya/topic2/","move:right")
 
-# The callback for when a PUBLISH message is received from the server.
-def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
-
 def on_intent(intent_request, session):
     """ Called when the user specifies an intent for this skill """
 
@@ -177,7 +220,7 @@ def on_intent(intent_request, session):
         return handle_session_end_request()
     elif intent_name=="SummonIntent":
         if 'MapPoint' in intent['slots']:
-            data="{'command': 'summon', 'location':"+ intent['slots']['MapPoint']['value']+ "}"
+            data="{\"command\": \"navigation\", \"location\":"+ "\"" + intent['slots']['MapPoint']['value']+"\"" + "}"
             publish_mqtt_message(COMMANDS_TOPIC,data);
         session_attributes = {}
         speech_output = "I summoned the irobot to " + \
@@ -187,17 +230,30 @@ def on_intent(intent_request, session):
         should_end_session = True
         return build_response(session_attributes, build_speechlet_response(
                                 speech_output,should_end_session))
-    
-        
+
     elif intent_name=="NavigateIntent":
         if 'MapPoint' in intent['slots']:
-            data="{'command': 'navigation', 'location':"+ intent['slots']['MapPoint']['value']+ "}"
+            data="{\"command\": \"navigation\", \"location\":"+ "\"" + intent['slots']['MapPoint']['value']+"\"" + "}"
             publish_mqtt_message(COMMANDS_TOPIC,data);
         session_attributes = {}
         speech_output = "I asked the irobot to navigate to" + \
                     intent['slots']['MapPoint']['value'] +\
                     " ,Please follow the robot!"
         should_end_session = True
+        return build_response(session_attributes, build_speechlet_response(
+                                speech_output,should_end_session))
+
+    elif intent_name=="LocateIntent":
+        (result,output) = call_mqtt_service("locate")
+        session_attributes = {}
+        should_end_session = True
+
+        if result == True:
+            speech_output = "The bot is currently in "+output
+        else:
+            speech_output = "There is a problem contacting the bot, Try again" \
+                                " after sometime"
+
         return build_response(session_attributes, build_speechlet_response(
                                 speech_output,should_end_session))
     else:
@@ -243,65 +299,66 @@ def lambda_handler(event, context):
     elif event['request']['type'] == "SessionEndedRequest":
         return on_session_ended(event['request'], event['session'])
 
+#call_mqtt_service("locate")
 
 #Test code
-test = {
-  "session": {
-    "sessionId": "SessionId.243764da-3982-4a33-831f-1466c157fadd",
-    "application": {
-      "applicationId": "amzn1.ask.skill.aaf60aa9-0cfb-48eb-a771-862a327ebf41"
-    },
-    "attributes": {},
-    "user": {
-      "userId": "amzn1.ask.account.AE24EMRJKG6YLPCJI5M4734NIEYLYR74ZOJ2TGNNSRON67XFLVQC5MTLIAJNPBABOLW65LGIMCUXAASE4HE4AIGC55AESYFLHW6UT2JLFA74Y2CPE7R5CNDYTDX7CHXXFJJSN76KT6GR3NVPKKFVZ5UEHETWQF4BAEIQHTFM423MIWPEEZG3LMEOODVVU2STRW4LRSEDJVPODVY"
-    },
-    "new": "true"
-  },
-  "request": {
-    "type": "IntentRequest",
-    "requestId": "EdwRequestId.ecfd4f4a-cc58-4fd3-8632-b8d58d2efc65",
-    "locale": "en-US",
-    "timestamp": "2016-11-16T09:01:56Z",
-    "intent": {
-      "name": "SummonIntent",
-      "slots": {
-        "MapPoint": {
-          "name": "MapPoint",
-          "value": "zoneone"
-        }
-      }
-    }
-  },
-  "version": "1.0"
-}
+#test = {
+  #"session": {
+    #"sessionId": "SessionId.243764da-3982-4a33-831f-1466c157fadd",
+    #"application": {
+      #"applicationId": "amzn1.ask.skill.aaf60aa9-0cfb-48eb-a771-862a327ebf41"
+    #},
+    #"attributes": {},
+    #"user": {
+      #"userId": "amzn1.ask.account.AE24EMRJKG6YLPCJI5M4734NIEYLYR74ZOJ2TGNNSRON67XFLVQC5MTLIAJNPBABOLW65LGIMCUXAASE4HE4AIGC55AESYFLHW6UT2JLFA74Y2CPE7R5CNDYTDX7CHXXFJJSN76KT6GR3NVPKKFVZ5UEHETWQF4BAEIQHTFM423MIWPEEZG3LMEOODVVU2STRW4LRSEDJVPODVY"
+    #},
+    #"new": "true"
+  #},
+  #"request": {
+    #"type": "IntentRequest",
+    #"requestId": "EdwRequestId.ecfd4f4a-cc58-4fd3-8632-b8d58d2efc65",
+    #"locale": "en-US",
+    #"timestamp": "2016-11-16T09:01:56Z",
+    #"intent": {
+      #"name": "SummonIntent",
+      #"slots": {
+        #"MapPoint": {
+          #"name": "MapPoint",
+          #"value": "zoneone"
+        #}
+      #}
+    #}
+  #},
+  #"version": "1.0"
+#}
 
-test2 = {
-  "session": {
-    "sessionId": "SessionId.d28235fc-0c03-440f-b704-6b97324c79c0",
-    "application": {
-      "applicationId": "amzn1.ask.skill.aaf60aa9-0cfb-48eb-a771-862a327ebf41"
-    },
-    "attributes": {},
-    "user": {
-      "userId": "amzn1.ask.account.AE24EMRJKG6YLPCJI5M4734NIEYLYR74ZOJ2TGNNSRON67XFLVQC5MTLIAJNPBABOLW65LGIMCUXAASE4HE4AIGC55AESYFLHW6UT2JLFA74Y2CPE7R5CNDYTDX7CHXXFJJSN76KT6GR3NVPKKFVZ5UEHETWQF4BAEIQHTFM423MIWPEEZG3LMEOODVVU2STRW4LRSEDJVPODVY"
-    },
-    "new": "true"
-  },
-  "request": {
-    "type": "IntentRequest",
-    "requestId": "EdwRequestId.c832ef87-eb8d-4487-9f12-ce53df55c211",
-    "locale": "en-US",
-    "timestamp": "2016-11-16T10:12:49Z",
-    "intent": {
-      "name": "NavigateIntent",
-      "slots": {
-        "MapPoint": {
-          "name": "MapPoint",
-          "value": "zone 1"
-        }
-      }
-    }
-  },
-  "version": "1.0"
-}
-lambda_handler(test2,"jaffa")
+#test2 = {
+  #"session": {
+    #"sessionId": "SessionId.d28235fc-0c03-440f-b704-6b97324c79c0",
+    #"application": {
+      #"applicationId": "amzn1.ask.skill.aaf60aa9-0cfb-48eb-a771-862a327ebf41"
+    #},
+    #"attributes": {},
+    #"user": {
+      #"userId": "amzn1.ask.account.AE24EMRJKG6YLPCJI5M4734NIEYLYR74ZOJ2TGNNSRON67XFLVQC5MTLIAJNPBABOLW65LGIMCUXAASE4HE4AIGC55AESYFLHW6UT2JLFA74Y2CPE7R5CNDYTDX7CHXXFJJSN76KT6GR3NVPKKFVZ5UEHETWQF4BAEIQHTFM423MIWPEEZG3LMEOODVVU2STRW4LRSEDJVPODVY"
+    #},
+    #"new": "true"
+  #},
+  #"request": {
+    #"type": "IntentRequest",
+    #"requestId": "EdwRequestId.c832ef87-eb8d-4487-9f12-ce53df55c211",
+    #"locale": "en-US",
+    #"timestamp": "2016-11-16T10:12:49Z",
+    #"intent": {
+      #"name": "NavigateIntent",
+      #"slots": {
+        #"MapPoint": {
+          #"name": "MapPoint",
+          #"value": "zone 1"
+        #}
+      #}
+    #}
+  #},
+  #"version": "1.0"
+#}
+#lambda_handler(test2,"jaffa")

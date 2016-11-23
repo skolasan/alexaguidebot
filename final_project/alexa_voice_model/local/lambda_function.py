@@ -1,1 +1,0 @@
-/home/kolassc/Desktop/ucsd_course_materials/CSE291/alexa_poc/lambda_function.py

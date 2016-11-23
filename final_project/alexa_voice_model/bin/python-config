@@ -1,4 +1,4 @@
-#!/home/kolassc/Desktop/ucsd_course_materials/CSE291/alexa_poc/bin/python
+#!/home/kolassc/catkin_ws/src/centurions/final_project/alexa_voice_model/bin/python
 
 import sys
 import getopt

@@ -4,9 +4,11 @@ import roslib
 import actionlib
 import sys
 import numpy as np
+import math
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from actionlib_msgs.msg import *
 from geometry_msgs.msg import Point
+from geometry_msgs.msg import PoseWithCovarianceStamped
 from alexaguidebot.srv import Command
 from alexaguidebot.srv import CommandRequest
 from alexaguidebot.srv import CommandResponse
@@ -20,8 +22,28 @@ zone2y=9.12342601152
 zone3x=6.3316227806
 zone3y=0.857146775507
 
+location_names=["zone1","zone2","zone3"]
+location_x_position=[zone1x,zone2x,zone3x]
+location_y_position=[zone1y,zone2y,zone3y]
 
 roslib.load_manifest('alexaguidebot')
+
+def getDistance(x1,y1,x2,y2):
+    return math.pow(x2-x1,2)+math.pow(y2-y1,2)
+
+def poseDataCallBack(data):
+    x=data.pose.pose.position.x;
+    y=data.pose.pose.position.y;
+
+    min_d = sys.maxint
+    min_i = 0
+    for i in range(len(location_names)):
+        d=getDistance(x,y,location_x_position[i],location_y_position[i])
+        if d<min_d:
+            min_d=d
+            min_i=i
+    global current_location;
+    current_location = location_names[i]
 
 def moveToGoal(xGoal,yGoal):
 
@@ -63,17 +85,26 @@ def moveToGoal(xGoal,yGoal):
 def handle_command(req):
     error=""
     if req.command == req.NAVIGATE:
-        print "Navigate called"
-        if(req.location=="zone1"):
+        print "Navigate called: "+req.location
+        if(req.location=="zone 1"):
             moveToGoal(zone1x,zone1y)
+            return CommandResponse(True,"Success")
+
+    elif req.command == req.LOCATE:
+        print "Locate called"
+        global current_location
+        return CommandResponse(True,current_location)
+
     else:
         print "Others called: "+str(req.command)
-    return CommandResponse(True,"Success")
+        return CommandResponse(True,"False")
 
 
+current_location="Unknown"
 def main(args):
     rospy.init_node('controller', anonymous=True)
     command_srv = rospy.Service("voice_commands",Command,handle_command)
+    rospy.Subscriber("/amcl_pose",PoseWithCovarianceStamped,poseDataCallBack)
     try:
         rospy.spin()
     except KeyboardInterrupt:

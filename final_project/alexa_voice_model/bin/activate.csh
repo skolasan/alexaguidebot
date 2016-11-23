@@ -7,7 +7,7 @@ alias deactivate 'test $?_OLD_VIRTUAL_PATH != 0 && setenv PATH "$_OLD_VIRTUAL_PA
 # Unset irrelevant variables.
 deactivate nondestructive
 
-setenv VIRTUAL_ENV "/home/kolassc/Desktop/ucsd_course_materials/CSE291/alexa_poc"
+setenv VIRTUAL_ENV "/home/kolassc/catkin_ws/src/centurions/final_project/alexa_voice_model"
 
 set _OLD_VIRTUAL_PATH="$PATH"
 setenv PATH "$VIRTUAL_ENV/bin:$PATH"

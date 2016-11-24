@@ -1,0 +1,25 @@
+<launch>
+  <!-- Include the launch file that launches a gazebo world. -->
+  <include file="$(find turtlebot_gazebo)/launch/turtlebot_world.launch">
+    <arg name="world_file" value="$(find turtlebot_gazebo)/worlds/corridor.world"/>
+  </include>
+
+  <!-- Include the gmapping demo launch file provided by turtlebot_gazebo package. -->
+  
+<include file="$(find turtlebot_gazebo)/launch/gmapping_demo.launch">
+
+  <!-- Launch ROS visualization with custom rviz. -->
+  <node pkg="rviz" type="rviz" name="rviz"
+        args= "-d $(find turtlebot_teleop_slam)/rviz/tts.rviz" />
+
+  <!-- Teleoperation of the Turtlebot with separate window. -->
+  <node pkg="turtlebot_teleop" 
+        type="turtlebot_teleop_key"
+        name="turtlebot_teleop_keyboard"
+        output="screen" launch-prefix="xterm -e">
+    <param name="scale_linear" value="0.5" type="double"/>
+    <param name="scale_angular" value="1.5" type="double"/>
+    <remap from="turtlebot_teleop_keyboard/cmd_vel" to="cmd_vel_mux/input/teleop"/>
+  </node>
+</launch>
+

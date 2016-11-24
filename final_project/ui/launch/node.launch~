@@ -1,0 +1,5 @@
+<launch>
+<node pkg="ui" type="ui_start" name="ui_start" output="screen" launch-prefix="xterm -e" />
+
+</launch>
+

@@ -20,9 +20,10 @@
   </node>
   
   
-  <machine name="Fit" address="192.168.1.100" ros-root="/opt/ros/indigo/" ros-package-path="/opt/ros/indigo/share" user="***" password="***" default="never" />
+ <machine name="aamodh@aamodh-Opti" address="132.239.20.202"  env-loader="/home/aamodh/setup.sh" user="aamodh" password="1992" default="never" />
+  
   
     <!-- Launch ROS visualization with custom rviz. -->
-  <node pkg="rviz" type="rviz" name="rviz" machine="Fit" required="true"/>
+ <node pkg="rviz" type="rviz" name="rviz" machine="aamodh@aamodh-Opti" required="true"/> 
 </launch>
 

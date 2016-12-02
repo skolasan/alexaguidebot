@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-
+#include <unistd.h>
 
 int main(int argc, char **argv)
 {
@@ -22,7 +22,9 @@ int main(int argc, char **argv)
 
 		std::cout << "Options:" << std::endl;
         std::cout << "  1 - Start Mapping" << std::endl;
-        std::cout << "  2 - Exit" << std::endl;
+        std::cout << "  2 - Save the built Map" << std::endl;
+        std::cout << "  3 - Start Navigation" << std::endl;
+        std::cout << "  4 - Exit" << std::endl;
 		std::cout << "---------------------------------" << std::endl;
 		std::cout << "Choice: ";
 		std::cin >> input;
@@ -31,9 +33,26 @@ int main(int argc, char **argv)
 		if (input == 1)
 		{
 
-            system("roslaunch ui start.launch");
+            system("roslaunch ui start.launch")&;
 		}
-        else if(input == 2)
+		 else if(input == 2)
+		{
+			system("rosrun map_server map_saver -f /tmp/my_map")&;
+		}
+		 else if(input == 3)
+		{
+			if (access("/tmp/my_map.yaml", F_OK ) != -1 ) 
+			{ 
+        	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/tmp/my_map.yaml")&;
+			system("roslaunch ui rviz.launch")&;
+        } 
+        else 
+        { 
+        std::cout<<"ERROR:file does not exist. Complete operations associated with Input 1 and 2 first"<<std::endl;
+             }
+
+		}
+        else if(input == 4)
 		{
 			std::cout << "Exiting..." << std::endl;
 			// Call exit service.

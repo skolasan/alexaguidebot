@@ -1,0 +1,6 @@
+ <launch>
+ <machine name="Fit" address="192.168.1.100" ros-root="/opt/ros/indigo/" ros-package-path="/opt/ros/indigo/share" user="***" password="***" default="never" >
+  
+    <!-- Launch ROS visualization with custom rviz. -->
+  <node pkg="rviz" type="rviz" name="rviz" machine="Fit" required="true"/>
+</launch>

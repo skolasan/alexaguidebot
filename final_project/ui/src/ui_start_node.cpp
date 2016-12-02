@@ -13,11 +13,11 @@ int main(int argc, char **argv)
 	{
 		// Clear screen.
 		int input;
-		std::cout << "\033[2J\033[1;1H";
+		//std::cout << "\033[2J\033[1;1H";
 
 
 		// Print menu.
-		std::cout << "MAIN MENU" << std::endl;
+		std::cout << "MAIN MENU original" << std::endl;
 		std::cout << "---------------------------------" << std::endl;
 
 		std::cout << "Options:" << std::endl;
@@ -29,22 +29,23 @@ int main(int argc, char **argv)
 		std::cout << "Choice: ";
 		std::cin >> input;
 		std::cout << std::endl;
-	
-		if (input == 1)
+	std::cout<<input<<std::endl;
+		if (input ==1)
 		{
 
-            system("roslaunch ui start.launch")&;
+            system("roslaunch ui start.launch &") ;
 		}
-		 else if(input == 2)
-		{
-			system("rosrun map_server map_saver -f /tmp/my_map")&;
+		 else if(input ==2)
+		{ 
+			system("rosrun map_server map_saver -f /tmp/my_map &") ;
 		}
-		 else if(input == 3)
+		 else if(input ==3)
 		{
+			
 			if (access("/tmp/my_map.yaml", F_OK ) != -1 ) 
 			{ 
-        	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/tmp/my_map.yaml")&;
-			system("roslaunch ui rviz.launch")&;
+        	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/tmp/my_map.yaml &") ;
+			system("roslaunch ui rviz.launch &");
         } 
         else 
         { 

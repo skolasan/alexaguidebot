@@ -1,4 +1,8 @@
  <launch>
+ 
+ <node pkg="alexaguidebot" type="alexaguidebot" name="controller.py" />
+ <node pkg="alexaguidebot" type="alexaguidebot" name="voice_command.py" />
+ 
  <machine name="Fit" address="192.168.1.100" ros-root="/opt/ros/indigo/" ros-package-path="/opt/ros/indigo/share" user="***" password="***" default="never" >
   
     <!-- Launch ROS visualization with custom rviz. -->

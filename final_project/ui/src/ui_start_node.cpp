@@ -79,6 +79,7 @@ int main(int argc, char **argv)
 			if (access("/tmp/my_map.yaml", F_OK ) != -1 ) 
 			{ 
         	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/tmp/my_map.yaml &") ;
+        	system("roslaunch ui rviz.launch &") ;
         } 
         else 
         { 

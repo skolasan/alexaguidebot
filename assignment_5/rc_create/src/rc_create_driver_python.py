@@ -12,7 +12,10 @@ try:
 except ImportError:
     print("Import error Please install pyserial.")
     raise
-
+from std_msgs.msg import String
+from geometry_msgs.msg import Twist, Vector3
+import math
+from std_srvs.srv import Empty
 roslib.load_manifest('rc_create')
 
 # sendCommandASCII takes a string of whitespace-separated, ASCII-encoded base 10 values to send
@@ -43,50 +46,49 @@ def sendCommandRaw(command,error):
 
 def handle_rc_command(req):
     error=""
+    global pub
+    global velocities
     if req.command == req.MOVE_FORWARD:
-        sendCommandASCII("145 0 100 0 100",error)
+        velocities = Twist(Vector3(0.2,0,0), Vector3(0,0,0.0))
         print "Move forward called"
     elif req.command == req.MOVE_BACKWARD:
-        sendCommandASCII("145 255 156 255 156",error)
+        velocities = Twist(Vector3(-0.2,0,0), Vector3(0,0,0.0))
     elif req.command == req.MOVE_LEFT:
-        print "Move left"
-        sendCommandASCII("145 0 70 0 0",error)
+        velocities = Twist(Vector3(0,0,0), Vector3(0,0,0.8))
     elif req.command == req.MOVE_RIGHT:
-        sendCommandASCII("145 0 0 0 70",error)
+        velocities = Twist(Vector3(0,0,0), Vector3(0.0,0,-0.8))
     elif req.command == req.STOP:
-        sendCommandASCII("145 0 0 0 0",error)
-    elif req.command == req.PLAY_SONG:
-        print "song"
-        sendCommandASCII("141 0",error)
+        velocities = Twist(Vector3(0,0,0), Vector3(0,0,0.0))
     else:
         print "Others called: "+str(req.command)
     return ControlResponse(True,"Success")
+    
+
 
 current_command=-1
 connection=None
 port= "/dev/ttyUSB0"
-
+pub=None
+velocities = None
 def main(args):
+    global pub
     global connection
+    global velocities
     error1=""
     rospy.init_node('rc_create_driver_python', anonymous=True)
+    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+    #rospy.init_node('turtle_controller', anonymous=True)
+    rate = rospy.Rate(40) # 10hz
     rc_command_srv = rospy.Service("rc_commands",Control,handle_rc_command)
-    try:
-        connection = serial.Serial(port, baudrate=115200, timeout=1)
-        #send a OI open
-        if sendCommandASCII("128",error1) == False:
-            raise Exception("Unable to send the OI start command-->Check connection")
-        if sendCommandASCII("132",error1) == False:
-            raise Exception("Unable to put the Roomba to Full mode -- > Check connection")
-        sendCommandASCII("140 0 24 48 20 48 20 50 20 48 20 53 20 52 20 48 20 48 20 50 20 48 20 55 20 53 20 48 20 48 20 50 20 48 20 53 20 52 20 48 20 48 20 50 20 48 20 55 20 53 20",error1)
-    except Exception as e:
-        print("Couldn't connect to "+port+" check if it exists error : "+str(e))
+    while not rospy.is_shutdown() :
+        if velocities is not None:
+            pub.publish(velocities)
+        try:
+            rate.sleep()
+        except KeyboardInterrupt:
+            print("Shutting down")
+            rospy.shutdown();
 
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        print("Shutting down")
-        rospy.shutdown();
 
 if __name__ == '__main__':
     main(sys.argv)

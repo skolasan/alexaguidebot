@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   std_msgs
   std_srvs
+  ca_driver
 )
 
 ## System dependencies are found with CMake's conventions

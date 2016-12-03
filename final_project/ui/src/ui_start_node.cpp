@@ -38,7 +38,6 @@ int main(int argc, char **argv)
 		if (input ==1)
 		{
 			std::cout<<"Firslty set the Master and Hostname on both the machines"<<std::endl;
-			std::cout<<"Then export 3D sensor =kinect on both the machines"<<std::endl;
 			std::cout<<"To begin Mapping follow steps 11 and 12"<<std::endl;
 			std::cout<<"For performing step 11 first ssh into the odroid "<<std::endl;
 			std::cout<<"After ssh, launch this menu and select 11 option"<<std::endl;
@@ -50,6 +49,7 @@ int main(int argc, char **argv)
 		}
 		 else if(input ==11)
 		{ 
+			system("export TURTLEBOT_3D_SENSOR=kinect &");
 			system("roslaunch ui start.launch &") ;
 		}
 		else if(input ==12)
@@ -79,6 +79,7 @@ int main(int argc, char **argv)
 			if (access("/tmp/my_map.yaml", F_OK ) != -1 ) 
 			{ 
         	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/tmp/my_map.yaml &") ;
+        	system("roslaunch ui rviz.launch &") ;
         } 
         else 
         { 

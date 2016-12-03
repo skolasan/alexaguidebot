@@ -3,8 +3,8 @@
  <node pkg="alexaguidebot" type="alexaguidebot" name="controller.py" />
  <node pkg="alexaguidebot" type="alexaguidebot" name="voice_command.py" />
  
- <machine name="aamodh@aamodh-Opti" address="132.239.20.202"  env-loader="/opt/ros/indigo/setup.sh" user="aamodh" password="1992" default="never" />
+ <machine name="aamodh-Opti" address="132.239.20.202"  env-loader="/opt/ros/indigo/env.sh" user="aamodh" password="1992" default="never" />
   
     <!-- Launch ROS visualization with custom rviz. -->
-  <node pkg="rviz" type="rviz" name="rviz" machine="aamodh@ammodh-Opti" required="true"/>
+  <node pkg="rviz" type="rviz" name="rviz" machine="aamodh-Opti" required="true"/>
 </launch>

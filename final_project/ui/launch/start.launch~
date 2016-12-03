@@ -7,8 +7,6 @@
   </include>
 
 
-   
-
   <!-- Teleoperation of the Turtlebot with separate window. -->
   <node pkg="turtlebot_teleop" 
         type="turtlebot_teleop_key"
@@ -19,11 +17,5 @@
     <remap from="turtlebot_teleop_keyboard/cmd_vel" to="cmd_vel_mux/input/teleop"/>
   </node>
   
-  
- <machine name="aamodh@aamodh-Opti" address="132.239.20.202"  env-loader="/home/aamodh/setup.sh" user="aamodh" password="1992" default="never" />
-  
-  
-    <!-- Launch ROS visualization with custom rviz. -->
- <!-- <node pkg="rviz" type="rviz" name="rviz" machine="aamodh@aamodh-Opti" required="true"/> -->
-</launch>
-
+  </launch>
+ 

@@ -1,7 +1,7 @@
  <launch>
  
- <node pkg="alexaguidebot" type="alexaguidebot" name="controller.py" />
- <node pkg="alexaguidebot" type="alexaguidebot" name="voice_command.py" />
+ <node pkg="alexaguidebot" type="controller" name="controller.py" />
+ <node pkg="alexaguidebot" type="voice_command" name="voice_command.py" />
  
 
 </launch>

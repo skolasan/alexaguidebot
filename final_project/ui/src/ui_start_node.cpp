@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 	while(ros::ok())
 	{
 		// Clear screen.
-		int input;
+		int input;int flag=0;
 		//std::cout << "\033[2J\033[1;1H";
 
 
@@ -49,6 +49,7 @@ int main(int argc, char **argv)
 		}
 		 else if(input ==11)
 		{ 
+			flag=1;
 			system("export TURTLEBOT_3D_SENSOR=kinect &");
 			system("roslaunch ui start.launch &") ;
 		}
@@ -58,7 +59,7 @@ int main(int argc, char **argv)
 		}
 		 else if(input ==2)
 		{ 
-			system("rosrun map_server map_saver -f /tmp/my_map &") ;
+			system("rosrun map_server map_saver -f /home/aamodh/catkin_ws/src/centurions/final_project/corridor_map.yaml &") ;
 		}
 		else if (input ==3)
 		{
@@ -76,9 +77,13 @@ int main(int argc, char **argv)
 		 else if(input ==31)
 		{
 			
-			if (access("/tmp/my_map.yaml", F_OK ) != -1 ) 
+			if (access("/home/aamodh/catkin_ws/src/centurions/final_project/corridor_map.yaml", F_OK ) != -1 ) 
 			{ 
-        	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/tmp/my_map.yaml &") ;
+				if(flag != 1)
+				{
+					system("roslaunch turtlebot_bringup minimal.launch &") ;
+				}
+        	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/home/aamodh/catkin_ws/src/centurions/final_project/corridor_map.yaml &") ;
         	system("roslaunch ui rviz.launch &") ;
         } 
         else 

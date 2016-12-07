@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 		}
 		 else if(input ==2)
 		{ 
-			system("rosrun map_server map_saver -f /home/aamodh/catkin_ws/src/centurions/final_project/corridor_map.yaml &") ;
+			system("rosrun map_server map_saver -f /root/catkin_ws/src/centurions/final_project/corridor_map.yaml &") ;
 		}
 		else if (input ==3)
 		{
@@ -77,13 +77,15 @@ int main(int argc, char **argv)
 		 else if(input ==31)
 		{
 			
-			if (access("/home/aamodh/catkin_ws/src/centurions/final_project/corridor_map.yaml", F_OK ) != -1 ) 
+			if (access("/root/catkin_ws/src/centurions/final_project/corridor_map.yaml", F_OK ) != -1 ) 
 			{ 
 				if(flag != 1)
 				{
+					system("export TURTLEBOT_3D_SENSOR=kinect &");
+
 					system("roslaunch turtlebot_bringup minimal.launch &") ;
 				}
-        	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/home/aamodh/catkin_ws/src/centurions/final_project/corridor_map.yaml &") ;
+        	system("roslaunch turtlebot_navigation amcl_demo.launch map_file:=/root/catkin_ws/src/centurions/final_project/corridor_map.yaml > /tmp/log.txt &") ;
         	system("roslaunch ui rviz.launch &") ;
         } 
         else 
@@ -119,3 +121,4 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
+

@@ -61,7 +61,7 @@ def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload))
     handle_message(client,msg)
 
-rospy.init_node('voice_commands', anonymous=True)
+rospy.init_node('controller', anonymous=True)
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message

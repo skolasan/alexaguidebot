@@ -14,18 +14,27 @@ from alexaguidebot.srv import CommandRequest
 from alexaguidebot.srv import CommandResponse
 
 #Add Map points
-zone1x=1.9478963962
-zone1y=7.05327463996
+zone2x=-4.926857
+zone2y=-1.651674
 
-zone2x=2.84276238302
-zone2y=9.12342601152
+zone1x=0.3594
+zone1y=-1.425
 
 zone3x=6.3316227806
 zone3y=0.857146775507
 
-location_names=["zone1","zone2","zone3"]
-location_x_position=[zone1x,zone2x,zone3x]
-location_y_position=[zone1y,zone2y,zone3y]
+elevatorx=-19.184509
+elevatory=-6.146203
+
+fireexitx=5.9895
+fireexity=-4.64
+
+fountainx=-14
+fountainy=0.32
+
+location_names=["zone1","zone2","zone3","elevator","water fountain","fire exit"]
+location_x_position=[zone1x,zone2x,zone3x,elevatorx,fountainx,fireexitx]
+location_y_position=[zone1y,zone2y,zone3y,elevatory,fountainy,fireexity]
 
 roslib.load_manifest('alexaguidebot')
 
@@ -89,6 +98,18 @@ def handle_command(req):
         print "Navigate called: "+req.location
         if(req.location=="zone 1"):
             moveToGoal(zone1x,zone1y)
+            return CommandResponse(True,"Success")
+	if(req.location=="zone 2"):
+            moveToGoal(zone2x,zone2y)
+            return CommandResponse(True,"Success")
+	if(req.location=="elevator"):
+            moveToGoal(elevatorx,elevatory)
+            return CommandResponse(True,"Success")
+	if(req.location=="fire exit"):
+            moveToGoal(fireexitx,fireexity)
+            return CommandResponse(True,"Success")
+	if(req.location=="water fountain"):
+            moveToGoal(fountainx,fountainy)
             return CommandResponse(True,"Success")
 
     elif req.command == req.LOCATE:

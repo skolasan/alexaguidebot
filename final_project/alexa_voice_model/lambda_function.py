@@ -211,7 +211,10 @@ def on_intent(intent_request, session):
     elif intent_name=="QueryIntent":
         if 'MapPoint' in intent['slots']:
             if intent['slots']['MapPoint']['value'] in locations:
-                speech_output="Yes, the bot can happily got to "+intent['slots']['MapPoint']['value']
+                if intent['slots']['MapPoint']['value'] == "fire exit":
+                    speech_output="Yes, the bot can go to fire exit, but if there is  real fire please stop playing with the bot and call nine one one"
+                else:
+                    speech_output="Yes, the bot can happily got to "+intent['slots']['MapPoint']['value']
             else:
                 speech_output="Sorry, the bot don't know how to reach "+intent['slots']['MapPoint']['value']+ \
                                 ", If you think its important, contact Team Centurions"

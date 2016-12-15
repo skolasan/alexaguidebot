@@ -1,5 +1,5 @@
 # **Project Proposal** #
-# **Robot Name :** Robo_guide (subject to change) #
+# **Robot Name :** Alexa_guide (subject to change) #
 
 ## **Task :** Unknown territory mapping with teleoperation, and intelligent map-based navigation with voice interaction.
 
@@ -17,14 +17,7 @@ The user interacts with our system to choose a goal point from the previous map.
 4. Microphone (Input voice commands)
 5. Inbuilt encoders (Odometry)
 
-![part1.png](https://bitbucket.org/repo/zrKbaL/images/2218617039-part1.png)
-![part2.png](https://bitbucket.org/repo/zrKbaL/images/1032390482-part2.png)
+## ** Technical details **:
 
-## **Work Division (Tentative) **:
-Ronit Shaw - Teleop and user interface setup
-
-Sai Chaitanya - Voice Interaction setup
-
-Aamodh Suresh - ROS_Nav setup
-
-Everyone - Combined Navigation
+1. We use a AWS lambda to host our alexa service if you want to reuse this code please create a AWS account to host the lambda.
+2. We have implemented a request response framework over mqtt. The code uses a public mqtt service make sure to change it to custom one.

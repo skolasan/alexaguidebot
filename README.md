@@ -17,7 +17,9 @@ The user interacts with our system to choose a goal point from the previous map.
 4. Microphone (Input voice commands)
 5. Inbuilt encoders (Odometry)
 
-## ** Technical details **:
+## Technical details:
 
 1. We use a AWS lambda to host our alexa service if you want to reuse this code please create a AWS account to host the lambda.
 2. We have implemented a request response framework over mqtt. The code uses a public mqtt service make sure to change it to custom one.
+
+https://www.youtube.com/watch?v=Oec4eM-5SjE

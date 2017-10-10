@@ -1,5 +1,5 @@
 # **Project Proposal** #
-# **Robot Name :** Alexa_guide (subject to change) #
+# **Robot Name :** Alexa guide bot #
 
 ## **Task :** Unknown territory mapping with teleoperation, and intelligent map-based navigation with voice interaction.
 
